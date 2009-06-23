@@ -6,11 +6,29 @@ package simplesound.pcm;
  */
 public class PcmAudioFormat {
 
+    /**
+     * Sample frequency in sample/sec.
+     */
     private final int sampleRate;
+    /**
+     * the amount of bits representing samples.
+     */
     private final int sampleSizeInBits;
+    /**
+     * How many bytes are required for representing samples
+     */
     private final int bytesRequiredPerSample;
+    /**
+     * channels. For now only 1 or two channels are allowed.
+     */
     private final int channels;
+    /**
+     * if data is represented as big endian or little endian.
+     */
     private final boolean bigEndian;
+    /**
+     * if data is signed or unsigned.
+     */
     private final boolean signed;
 
     private PcmAudioFormat(int sampleRate, int sampleSizeInBits, int channels, boolean bigEndian, boolean signed) {
@@ -77,6 +95,9 @@ public class PcmAudioFormat {
         }
     }
 
+    /**
+     * a builder class for generating PCM Audio format for wav files.
+     */
     public static class WavFormatBuilder {
         private int _sampleRate;
         private int _sampleSizeInBits;
