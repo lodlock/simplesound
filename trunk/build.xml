@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="simplesound" default="jar" basedir=".">
+
+    <property file="build.properties"/>
+
+    <property name="src.dir" location="src"/>
+    <property name="build.dir" location="build"/>
+
+    <!--  compile to build dir -->
+    <target name="compile">
+        <delete dir="${build.dir}"/>
+        <mkdir dir="${build.dir}"/>
+        <javac srcdir="${src.dir}"
+               destdir="${build.dir}"
+               debug="true"
+               source="1.5"
+               target="1.5"
+               debuglevel="vars,lines,source">
+        </javac>
+        <copy todir="${build.dir}">
+            <fileset dir="${src.dir}">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- dagitim kutuphanelerini jar icerisine gomelim.-->
+    <target name="jar" depends="compile">
+        <jar basedir="${build.dir}" file="${name}-${version}.jar"/>
+    </target>
+
+
+</project>
+
+
