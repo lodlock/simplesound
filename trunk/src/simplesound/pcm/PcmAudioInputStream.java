@@ -31,10 +31,22 @@ public class PcmAudioInputStream extends InputStream implements Closeable {
         return Bytes.toIntArray(all, all.length, format.getBytePerSample(), format.isBigEndian());
     }
 
+    /**
+     * reads samples as byte array. if there is not enough data for the amount of samples, remaining data is returned
+     * anyway. if the byte amount is not an order of bytes required for sample (such as 51 bytes left but 16 bit samples)
+     * an IllegalStateException is thrown.
+     * @param amount amount of samples to read.
+     * @return byte array.
+     * @throws IOException if there is an IO error.
+     * @throws IllegalStateException if the amount of bytes read is not an order of correct.
+     */
     public byte[] readSamplesByteArray(int amount) throws IOException {
         byte[] bytez = new byte[amount * format.getBytePerSample()];
         int readCount = dis.read(bytez);
         if (readCount != bytez.length) {
+            if (readCount % format.getBytePerSample() != 0)
+                throw new IllegalStateException("unexpected amounts of bytes read from the input stream. " +
+                        "Byte count must be an order of:" + format.getBytePerSample());
             byte[] result = new byte[readCount];
             System.arraycopy(bytez, 0, result, 0, readCount);
             return result;
@@ -55,9 +67,9 @@ public class PcmAudioInputStream extends InputStream implements Closeable {
     public double[] readSamplesNormalized(int amount) throws IOException {
         int[] original = readSamplesAsIntArray(amount);
         double[] normalized = new double[original.length];
-        int max = 0x7fffffff >>> (31 - format.getSampleSizeInBits());
+        final int max = 0x7fffffff >>> (31 - format.getSampleSizeInBits());
         for (int i = 0; i < normalized.length; i++) {
-            normalized[i] = max / original[i];
+            normalized[i] = original[i] / max;
         }
         return normalized;
     }
@@ -65,9 +77,9 @@ public class PcmAudioInputStream extends InputStream implements Closeable {
     public double[] readSamplesNormalized() throws IOException {
         int[] original = readAll();
         double[] normalized = new double[original.length];
-        int max = 0x7fffffff >>> (31 - format.getSampleSizeInBits());
+        final int max = 0x7fffffff >>> (31 - format.getSampleSizeInBits());
         for (int i = 0; i < normalized.length; i++) {
-            normalized[i] = max / original[i];
+            normalized[i] = original[i] / max;
         }
         return normalized;
     }
