@@ -25,13 +25,13 @@ public class PcmAudioFormat {
     /**
      * if data is represented as big endian or little endian.
      */
-    private final boolean bigEndian;
+    protected final boolean bigEndian;
     /**
      * if data is signed or unsigned.
      */
     private final boolean signed;
 
-    private PcmAudioFormat(int sampleRate, int sampleSizeInBits, int channels, boolean bigEndian, boolean signed) {
+    protected PcmAudioFormat(int sampleRate, int sampleSizeInBits, int channels, boolean bigEndian, boolean signed) {
 
         if (sampleRate < 1)
             throw new IllegalArgumentException("sampleRate cannot be less than one. But it is:" + sampleRate);
@@ -56,18 +56,17 @@ public class PcmAudioFormat {
     }
 
     /**
-     * This is a builder class. By default it generates little endian, signed.
+     * This is a builder class. By default it generates little endian, mono, signed, 16 bits per sample.
      */
     public static class Builder {
         private int _sampleRate;
-        private int _sampleSizeInBits;
+        private int _sampleSizeInBits = 16;
         private int _channels = 1;
         private boolean _bigEndian = false;
         private boolean _signed = true;
 
-        public Builder sampleRate(int sampleRate) {
+        public Builder(int sampleRate) {
             this._sampleRate = sampleRate;
-            return this;
         }
 
         public Builder channels(int channels) {
@@ -95,54 +94,8 @@ public class PcmAudioFormat {
         }
     }
 
-    /**
-     * a builder class for generating PCM Audio format for wav files.
-     */
-    public static class WavFormatBuilder {
-        private int _sampleRate;
-        private int _sampleSizeInBits;
-        private int _channels = 1;
-
-        public WavFormatBuilder sampleRate(int sampleRate) {
-            this._sampleRate = sampleRate;
-            return this;
-        }
-
-        public WavFormatBuilder channels(int channels) {
-            this._channels = channels;
-            return this;
-        }
-
-        public WavFormatBuilder sampleSizeInBits(int sampleSizeInBits) {
-            this._sampleSizeInBits = sampleSizeInBits;
-            return this;
-        }
-
-        public PcmAudioFormat build() {
-            if (_sampleSizeInBits == 8)
-                return new PcmAudioFormat(_sampleRate, _sampleSizeInBits, _channels, false, false);
-            else
-                return new PcmAudioFormat(_sampleRate, _sampleSizeInBits, _channels, false, true);
-        }
-    }
-
-    public static PcmAudioFormat wavMono16Bit(int sampleRate) {
-        return new PcmAudioFormat(sampleRate, 16, 1, false, true);
-    }
-
-    /**
-     * Generates audio format data for Wav audio format. returning PCM format is little endian. 
-     *
-     * @param sampleRate       sample rate
-     * @param sampleSizeInBits bit amount per sample
-     * @param channels         channel count. can be 1 or 2
-     * @return a RawAudioFormat suitable for wav format.
-     */
-    public static PcmAudioFormat wavFormat(int sampleRate, int sampleSizeInBits, int channels) {
-        if (sampleSizeInBits == 8)
-            return new PcmAudioFormat(sampleRate, sampleSizeInBits, channels, false, false);
-        else
-            return new PcmAudioFormat(sampleRate, sampleSizeInBits, channels, false, true);
+    PcmAudioFormat mono16BitSignedLittleEndian(int sampleRate) {
+        return new PcmAudioFormat(sampleRate, 16,1,false,true);
     }
 
     public int getSampleRate() {
@@ -177,7 +130,7 @@ public class PcmAudioFormat {
      * @param second second information
      * @return the byte location in the samples.
      */
-    public int findSampleLocation(double second) {
+    public int calculateSampleIndex(double second) {
 
         if (second < 0)
             throw new IllegalArgumentException("Time information cannot be negative.");
@@ -190,11 +143,25 @@ public class PcmAudioFormat {
         return loc;
     }
 
+    /**
+     * calcualates the time informationn for a given sample.
+     *
+     * @param sampleIndex sample index.
+     * @return approximate seconds information for the given sample.
+     */
+    public double calculateSampleTime(int sampleIndex) {
+        if (sampleIndex < 0)
+            throw new IllegalArgumentException("sampleIndex information cannot be negative:" + sampleIndex);
+
+        return (double) sampleIndex / sampleRate;
+    }
+
     public boolean isSigned() {
         return signed;
     }
 
     public String toString() {
-        return "[ Sample Rate:" + sampleRate + " , SampleSizeInBits:" + sampleSizeInBits + ", channels:" + channels + " ]";
+        return "[ Sample Rate:" + sampleRate + " , SampleSizeInBits:" + sampleSizeInBits +
+                ", channels:" + channels + ", signed:" + signed + ", bigEndian:" + bigEndian + " ]";
     }
 }

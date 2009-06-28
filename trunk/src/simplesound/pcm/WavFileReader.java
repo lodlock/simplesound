@@ -9,6 +9,10 @@ public class WavFileReader {
     private final File file;
     private final RiffHeaderData riffHeaderData;
 
+    public WavFileReader(String fileName) throws IOException {
+        this(new File(fileName));
+    }
+
     public WavFileReader(File file) throws IOException {
         this.file = file;
         riffHeaderData = new RiffHeaderData(file);
@@ -25,6 +29,7 @@ public class WavFileReader {
     }
 
     public short[] getSamplesAsShorts(int frameStart, int frameEnd) throws IOException {
+        validateFrameBoundaries(frameStart, frameEnd);
         PcmAudioInputStream stream = getStream();
         try {
             stream.skipSamples(frameStart);
@@ -34,14 +39,15 @@ public class WavFileReader {
         }
     }
 
-    public byte[] getSamplesAsBytes(int frameStart, int frameEnd) throws IOException {
-        PcmAudioInputStream stream = getStream();
-        try {
-            stream.skipSamples(frameStart);
-            return stream.readSamplesByteArray(frameEnd - frameStart);
-        } finally {
-            stream.close();
-        }
+    private void validateFrameBoundaries(int frameStart, int frameEnd) {
+        if (frameStart < 0)
+            throw new IllegalArgumentException("Start Frame cannot be negative:" + frameStart);
+        if (frameEnd < frameStart)
+            throw new IllegalArgumentException("Start Frame cannot be after end frame. Start:"
+                    + frameStart + ", end:" + frameEnd);
+        if (frameEnd > riffHeaderData.getSampleCount())
+            throw new IllegalArgumentException("Frame count out of bounds. Max sample count:"
+                    + riffHeaderData.getSampleCount() + " but frame is:" + frameEnd);
     }
 
     public int[] getAllSamples() throws IOException {
@@ -54,6 +60,7 @@ public class WavFileReader {
     }
 
     public int[] getSamplesAsInts(int frameStart, int frameEnd) throws IOException {
+        validateFrameBoundaries(frameStart, frameEnd);
         PcmAudioInputStream stream = getStream();
         try {
             stream.skipSamples(frameStart);
@@ -63,22 +70,13 @@ public class WavFileReader {
         }
     }
 
-    public int[] getSamplesSecondsInterval(double startSecond, double endSecond) throws IOException {
-        if (endSecond < startSecond)
-            throw new IllegalArgumentException("End cannot be earlier than start. Start:" + startSecond +
-                    " End:" + endSecond);
-        int startLoc = riffHeaderData.findSampleLocation(startSecond);
-        int endLoc = riffHeaderData.findSampleLocation(endSecond);
 
-        if (startLoc == -1 || endLoc == -1)
-            throw new IllegalArgumentException("One or two parameter is out of the sample limit. Start:"
-                    + startLoc +
-                    " End:" + endLoc);
-        return getSamplesAsInts(startLoc, endLoc);
+    public PcmAudioFormat getFormat() {
+        return riffHeaderData.getFormat();
     }
 
-    public RiffHeaderData getHeader() {
-        return riffHeaderData;
+    public int getSampleCount() {
+        return riffHeaderData.getSampleCount();
     }
 
     public File getFile() {
