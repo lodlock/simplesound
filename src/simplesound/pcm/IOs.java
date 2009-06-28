@@ -1,9 +1,6 @@
 package simplesound.pcm;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.*;
 
 class IOs {
     /**
@@ -31,7 +28,8 @@ class IOs {
     }
 
     /**
-     * converts an input stream data to byte array. careful with memory usage here. 
+     * converts an input stream data to byte array. careful with memory usage here.
+     *
      * @param is , an input stream
      * @return a byte array representing the stream data.
      * @throws IOException          if an error occurs during the read or write of the streams.
@@ -50,6 +48,42 @@ class IOs {
             return baos.toByteArray();
         } finally {
             closeSilently(is, baos);
+        }
+    }
+
+    /**
+     * Copies oan input stream content to an output stream.
+     * Once the copy is finished streams will be closed.
+     *
+     * @param is input stream
+     * @param os output stream
+     * @throws java.io.IOException if an IO error occurs.
+     */
+    public static void copy(InputStream is, OutputStream os) throws IOException {
+        copy(is, os, false);
+    }
+
+    /**
+     * Copies oan input stream content to an output stream.
+     * Once the copy is finished only the input strean is closed by default. Closing of the
+     * output stream depends on the boolean parameter..
+     *
+     * @param is             input stream
+     * @param os             output stream
+     * @param keepOutputOpen if true, output stream will not be closed.
+     * @throws java.io.IOException if an IO error occurs.
+     */
+    static void copy(InputStream is, OutputStream os, boolean keepOutputOpen) throws IOException {
+        try {
+            byte[] buf = new byte[4096];
+            int i;
+            while ((i = is.read(buf)) != -1)
+                os.write(buf, 0, i);
+        }
+        finally {
+            closeSilently(is);
+            if (!keepOutputOpen)
+                closeSilently(os);
         }
     }
 }

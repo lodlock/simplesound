@@ -1,6 +1,8 @@
 package simplesound.pcm;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Writes a wav file. Careful that it writes the total amount of the bytes information once the close method
@@ -8,12 +10,12 @@ import java.io.*;
  */
 public class WavFileWriter implements Closeable {
 
-    private final PcmAudioFormat pcmAudioFormat;
+    private final WavAudioFormat pcmAudioFormat;
     private final PcmAudioOutputStream pos;
     private int totalSampleBytesWritten = 0;
     private final File file;
 
-    public WavFileWriter(PcmAudioFormat pcmAudioFormat, File file) throws IOException {
+    public WavFileWriter(WavAudioFormat pcmAudioFormat, File file) throws IOException {
         if (pcmAudioFormat.isBigEndian())
             throw new IllegalArgumentException("Wav file cannot contain bigEndian sample data.");
         if (pcmAudioFormat.getSampleSizeInBits() > 8 && !pcmAudioFormat.isSigned())
@@ -68,22 +70,13 @@ public class WavFileWriter implements Closeable {
 
     public void close() throws IOException {
         pos.close();
-        RiffHeaderData.modifyRiffSizeData(file, totalSampleBytesWritten);
+        PcmAudioHelper.modifyRiffSizeData(file, totalSampleBytesWritten);
     }
 
     public PcmAudioFormat getWavFormat() {
         return pcmAudioFormat;
     }
 
-    public static void generateSilenceFile(PcmAudioFormat pcmAudioFormat, File file, double sec) throws IOException {
-        WavFileWriter wfr = new WavFileWriter(pcmAudioFormat, file);
-        int[] empty = new int[(int) (sec * pcmAudioFormat.getSampleRate())];
-        try {
-            wfr.write(empty);
-        } finally {
-            wfr.close();
-        }
-    }
 
     public int getTotalSampleBytesWritten() {
         return totalSampleBytesWritten;

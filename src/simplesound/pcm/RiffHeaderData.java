@@ -4,11 +4,11 @@ import static simplesound.pcm.Bytes.toByteArray;
 
 import java.io.*;
 
-public class RiffHeaderData {
+class RiffHeaderData {
 
     public static final int PCM_RIFF_HEADER_SIZE = 44;
-    private static final int RIFF_CHUNK_SIZE_INDEX = 4;
-    private static final int RIFF_SUBCHUNK2_SIZE_INDEX = 40;
+    public static final int RIFF_CHUNK_SIZE_INDEX = 4;
+    public static final int RIFF_SUBCHUNK2_SIZE_INDEX = 40;
 
     private final PcmAudioFormat format;
     private final int totalSamplesInByte;
@@ -18,33 +18,8 @@ public class RiffHeaderData {
         this.totalSamplesInByte = totalSamplesInByte;
     }
 
-    public int timeMilis() {
-        return (int) timeSeconds() * 1000;
-    }
-
     public double timeSeconds() {
         return (double) totalSamplesInByte / format.getBytePerSample() / format.getSampleRate();
-    }
-
-    /**
-     * finds the byte location of a given time. if time is more than the length of the wav data,
-     * -1 is returned. if second is negative, exception is thrown.
-     *
-     * @param second second information
-     * @return the byte location in the samples.
-     */
-    public int findSampleLocation(double second) {
-        final int bps = format.getBytePerSample();
-        int loc = (int) (second * format.getSampleRate() * bps);
-
-        if (loc % bps != 0) {
-            loc += (bps - loc % bps);
-        }
-
-        if (loc > totalSamplesInByte)
-            return -1;
-
-        return loc;
     }
 
     public RiffHeaderData(DataInputStream dis) throws IOException {
@@ -71,7 +46,7 @@ public class RiffHeaderData {
             dis.readFully(buf4);
             totalSamplesInByte = Bytes.toInt(buf4, false);
 
-            format = new PcmAudioFormat.WavFormatBuilder().
+            format = new WavAudioFormat.Builder().
                     channels(channels).
                     sampleRate(sampleRate).
                     sampleSizeInBits(sampleSizeInBits).
@@ -131,22 +106,6 @@ public class RiffHeaderData {
         } finally {
             IOs.closeSilently(baos);
         }
-    }
-
-    /**
-     * Modifies the size information in a wav file header.
-     *
-     * @param wavFile a wav file
-     * @param size    size to replace the header.
-     * @throws IOException if an error occurs whule accesing the data.
-     */
-    public static void modifyRiffSizeData(File wavFile, int size) throws IOException {
-        RandomAccessFile raf = new RandomAccessFile(wavFile, "rw");
-        raf.seek(RIFF_CHUNK_SIZE_INDEX);
-        raf.write(Bytes.toByteArray(size + 36, false));
-        raf.seek(RIFF_SUBCHUNK2_SIZE_INDEX);
-        raf.write(Bytes.toByteArray(size, false));
-        raf.close();
     }
 
     public PcmAudioFormat getFormat() {

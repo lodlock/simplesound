@@ -3,7 +3,7 @@ package simplesound.pcm;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 
-public class AudioFormatBuilder {
+public class JavaAudioFormatBuilder {
 
     private enum Channel {
         MONO(1), STEREO(2), NOT_SPECIFIED(0);
@@ -16,13 +16,13 @@ public class AudioFormatBuilder {
     }
 
     public static final AudioFormat PCM_SIGNED_8_KHZ_16_BIT_MONO_BIG_ENDIAN =
-            new AudioFormatBuilder().pcmSigned().sampleSizeInBits(16).sampleRate(8000.0f).mono().bigEndian().build();
+            new JavaAudioFormatBuilder().pcmSigned().sampleSizeInBits(16).sampleRate(8000.0f).mono().bigEndian().build();
 
     public static final AudioFormat PCM_SIGNED_8_KHZ_16_BIT_MONO_LITTLE_ENDIAN =
-            new AudioFormatBuilder().pcmSigned().sampleSizeInBits(16).sampleRate(8000.0f).mono().littleEndian().build();
+            new JavaAudioFormatBuilder().pcmSigned().sampleSizeInBits(16).sampleRate(8000.0f).mono().littleEndian().build();
 
     public static final AudioFormat PCM_SIGNED_44_KHZ_16_BIT_STEREO_LITTLE_ENDIAN =
-            new AudioFormatBuilder().pcmSigned().sampleSizeInBits(16).sampleRate(44100.0f).stereo().littleEndian().build();
+            new JavaAudioFormatBuilder().pcmSigned().sampleSizeInBits(16).sampleRate(44100.0f).stereo().littleEndian().build();
 
     /**
      * The audio encoding technique used by this format.
@@ -49,52 +49,52 @@ public class AudioFormatBuilder {
      */
     private boolean bigEndian = true;
 
-    public AudioFormatBuilder pcmSigned() {
+    public JavaAudioFormatBuilder pcmSigned() {
         this.encoding = AudioFormat.Encoding.PCM_SIGNED;
         return this;
     }
 
-    public AudioFormatBuilder pcmUnsigned() {
+    public JavaAudioFormatBuilder pcmUnsigned() {
         this.encoding = AudioFormat.Encoding.PCM_UNSIGNED;
         return this;
     }
 
-    public AudioFormatBuilder aLaw() {
+    public JavaAudioFormatBuilder aLaw() {
         this.encoding = AudioFormat.Encoding.ALAW;
         return this;
     }
 
-    public AudioFormatBuilder uLaw() {
+    public JavaAudioFormatBuilder uLaw() {
         this.encoding = AudioFormat.Encoding.ULAW;
         return this;
     }
 
-    public AudioFormatBuilder sampleRate(float sampleRate) {
+    public JavaAudioFormatBuilder sampleRate(float sampleRate) {
         this.sampleRate = sampleRate;
         return this;
     }
 
-    public AudioFormatBuilder sampleSizeInBits(int sampleSizeInBits) {
+    public JavaAudioFormatBuilder sampleSizeInBits(int sampleSizeInBits) {
         this.sampleSizeInBits = sampleSizeInBits;
         return this;
     }
 
-    public AudioFormatBuilder mono() {
+    public JavaAudioFormatBuilder mono() {
         this.channel = Channel.MONO;
         return this;
     }
 
-    public AudioFormatBuilder stereo() {
+    public JavaAudioFormatBuilder stereo() {
         this.channel = Channel.STEREO;
         return this;
     }
 
-    public AudioFormatBuilder bigEndian() {
+    public JavaAudioFormatBuilder bigEndian() {
         this.bigEndian = true;
         return this;
     }
 
-    public AudioFormatBuilder littleEndian() {
+    public JavaAudioFormatBuilder littleEndian() {
         this.bigEndian = false;
         return this;
     }
