@@ -11,20 +11,20 @@ import java.io.IOException;
 public class WavFileWriter implements Closeable {
 
     private final WavAudioFormat pcmAudioFormat;
-    private final PcmAudioOutputStream pos;
+    private final PcmMonoAudioOutputStream pos;
     private int totalSampleBytesWritten = 0;
     private final File file;
 
-    public WavFileWriter(WavAudioFormat pcmAudioFormat, File file) throws IOException {
-        if (pcmAudioFormat.isBigEndian())
+    public WavFileWriter(WavAudioFormat wavAudioFormat, File file) throws IOException {
+        if (wavAudioFormat.isBigEndian())
             throw new IllegalArgumentException("Wav file cannot contain bigEndian sample data.");
-        if (pcmAudioFormat.getSampleSizeInBits() > 8 && !pcmAudioFormat.isSigned())
+        if (wavAudioFormat.getSampleSizeInBits() > 8 && !wavAudioFormat.isSigned())
             throw new IllegalArgumentException("Wav file cannot contain unsigned data for this sampleSize:"
-                    + pcmAudioFormat.getSampleSizeInBits());
-        this.pcmAudioFormat = pcmAudioFormat;
+                    + wavAudioFormat.getSampleSizeInBits());
+        this.pcmAudioFormat = wavAudioFormat;
         this.file = file;
-        this.pos = new PcmAudioOutputStream(pcmAudioFormat, file);
-        pos.write(new RiffHeaderData(pcmAudioFormat, 0).asByteArray());
+        this.pos = new PcmMonoAudioOutputStream(wavAudioFormat, file);
+        pos.write(new RiffHeaderData(wavAudioFormat, 0).asByteArray());
     }
 
     public WavFileWriter write(byte[] bytes) throws IOException {
@@ -45,18 +45,6 @@ public class WavFileWriter implements Closeable {
         checkLimit(totalSampleBytesWritten, shorts.length * 2);
         pos.write(shorts);
         totalSampleBytesWritten += shorts.length * 2;
-        return this;
-    }
-
-    public WavFileWriter writeStereo(int[] channel0, int[] channel1) throws IOException {
-        if (channel0.length != channel1.length)
-            throw new IllegalArgumentException("channels must have equeal amount of data.");
-        final int bytePerSample = pcmAudioFormat.getBytePerSample();
-        for (int i = 0; i < channel0.length; i++) {
-            pos.write(Bytes.toByteArray(channel0[i], bytePerSample, false));
-            pos.write(Bytes.toByteArray(channel1[i], bytePerSample, false));
-            totalSampleBytesWritten += (bytePerSample * 2);
-        }
         return this;
     }
 

@@ -21,6 +21,7 @@ public class WavAuidoFormatTests {
                 wavFormat.getBytePerSample() == 2);
 
         wavFormat = WavAudioFormat.wavFormat(8000, 8, 1);
+        
         // notice the !isSigned() because 8 bit data is unsigned in wav
         Assert.assertTrue(wavFormat.getChannels() == 1 &&
                 wavFormat.getSampleRate() == 8000 &&

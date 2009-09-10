@@ -7,10 +7,10 @@ public class PcmAudioHelper {
     /**
      * Converts a pcm encoded raw audio stream to a wav file.
      *
-     * @param af
-     * @param rawSource
-     * @param wavTarget
-     * @throws IOException
+     * @param af format
+     * @param rawSource raw source file
+     * @param wavTarget raw file target
+     * @throws IOException thrown if an error occurs during file operations.
      */
     public static void convertRawToWav(WavAudioFormat af, File rawSource, File wavTarget) throws IOException {
         DataOutputStream dos = new DataOutputStream(new FileOutputStream(wavTarget));
@@ -28,11 +28,11 @@ public class PcmAudioHelper {
     }
 
     public static void convertWavToRaw(File wavSource, File rawTarget) throws IOException {
-        IOs.copy(new WavFileReader(wavSource).getStream(), new FileOutputStream(rawTarget));
+        IOs.copy(new MonoWavFileReader(wavSource).getStream(), new FileOutputStream(rawTarget));
     }
 
     public static double[] readAllFromWavNormalized(String fileName) throws IOException {
-        return new WavFileReader(new File(fileName)).getStream().readSamplesNormalized();
+        return new MonoWavFileReader(new File(fileName)).getStream().readSamplesNormalized();
     }
 
     /**

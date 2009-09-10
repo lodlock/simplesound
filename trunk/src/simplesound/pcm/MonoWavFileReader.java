@@ -4,22 +4,24 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class WavFileReader {
+public class MonoWavFileReader {
 
     private final File file;
     private final RiffHeaderData riffHeaderData;
 
-    public WavFileReader(String fileName) throws IOException {
+    public MonoWavFileReader(String fileName) throws IOException {
         this(new File(fileName));
     }
 
-    public WavFileReader(File file) throws IOException {
+    public MonoWavFileReader(File file) throws IOException {
         this.file = file;
         riffHeaderData = new RiffHeaderData(file);
+        if (riffHeaderData.getFormat().getChannels() != 1)
+            throw new IllegalArgumentException("Wav file is not Mono.");
     }
 
-    public PcmAudioInputStream getStream() throws IOException {
-        PcmAudioInputStream asis = new PcmAudioInputStream(
+    public PcmMonoAudioInputStream getStream() throws IOException {
+        PcmMonoAudioInputStream asis = new PcmMonoAudioInputStream(
                 riffHeaderData.getFormat(),
                 new FileInputStream(file));
         long amount = asis.skip(RiffHeaderData.PCM_RIFF_HEADER_SIZE);
@@ -30,7 +32,7 @@ public class WavFileReader {
 
     public short[] getSamplesAsShorts(int frameStart, int frameEnd) throws IOException {
         validateFrameBoundaries(frameStart, frameEnd);
-        PcmAudioInputStream stream = getStream();
+        PcmMonoAudioInputStream stream = getStream();
         try {
             stream.skipSamples(frameStart);
             return stream.readSamplesShortArray(frameEnd - frameStart);
@@ -51,7 +53,7 @@ public class WavFileReader {
     }
 
     public int[] getAllSamples() throws IOException {
-        PcmAudioInputStream stream = getStream();
+        PcmMonoAudioInputStream stream = getStream();
         try {
             return stream.readAll();
         } finally {
@@ -61,7 +63,7 @@ public class WavFileReader {
 
     public int[] getSamplesAsInts(int frameStart, int frameEnd) throws IOException {
         validateFrameBoundaries(frameStart, frameEnd);
-        PcmAudioInputStream stream = getStream();
+        PcmMonoAudioInputStream stream = getStream();
         try {
             stream.skipSamples(frameStart);
             return stream.readSamplesAsIntArray(frameEnd - frameStart);

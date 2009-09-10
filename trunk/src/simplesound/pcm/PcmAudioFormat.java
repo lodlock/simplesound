@@ -124,38 +124,6 @@ public class PcmAudioFormat {
         return bigEndian;
     }
 
-    /**
-     * finds the byte location of a given time. if time is negative, exception is thrown.
-     *
-     * @param second second information
-     * @return the byte location in the samples.
-     */
-    public int calculateSampleIndex(double second) {
-
-        if (second < 0)
-            throw new IllegalArgumentException("Time information cannot be negative.");
-
-        int loc = (int) (second * sampleRate * bytesRequiredPerSample);
-
-        if (loc % bytesRequiredPerSample != 0) {
-            loc += (bytesRequiredPerSample - loc % bytesRequiredPerSample);
-        }
-        return loc;
-    }
-
-    /**
-     * calcualates the time informationn for a given sample.
-     *
-     * @param sampleIndex sample index.
-     * @return approximate seconds information for the given sample.
-     */
-    public double calculateSampleTime(int sampleIndex) {
-        if (sampleIndex < 0)
-            throw new IllegalArgumentException("sampleIndex information cannot be negative:" + sampleIndex);
-
-        return (double) sampleIndex / sampleRate;
-    }
-
     public boolean isSigned() {
         return signed;
     }

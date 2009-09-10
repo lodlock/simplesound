@@ -2,17 +2,17 @@ package simplesound.pcm;
 
 import java.io.*;
 
-public class PcmAudioOutputStream extends OutputStream implements Closeable {
+public class PcmMonoAudioOutputStream extends OutputStream implements Closeable {
 
     final PcmAudioFormat format;
     final DataOutputStream dos;
 
-    public PcmAudioOutputStream(PcmAudioFormat format, DataOutputStream dos) {
+    public PcmMonoAudioOutputStream(PcmAudioFormat format, DataOutputStream dos) {
         this.format = format;
         this.dos = dos;
     }
 
-    public PcmAudioOutputStream(PcmAudioFormat format, File file) throws IOException {
+    public PcmMonoAudioOutputStream(PcmAudioFormat format, File file) throws IOException {
         this.format = format;
         this.dos = new DataOutputStream(new FileOutputStream(file));
     }
