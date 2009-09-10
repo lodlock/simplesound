@@ -5,12 +5,14 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class PcmAudioInputStream extends InputStream implements Closeable {
+public class PcmMonoAudioInputStream extends InputStream implements Closeable {
 
     final PcmAudioFormat format;
     final DataInputStream dis;
 
-    public PcmAudioInputStream(PcmAudioFormat format, InputStream is) {
+    public PcmMonoAudioInputStream(PcmAudioFormat format, InputStream is) {
+        if (format.getChannels() != 1)
+            throw new IllegalArgumentException("Only mono streams are supported.");
         this.format = format;
         this.dis = new DataInputStream(is);
     }
@@ -42,7 +44,7 @@ public class PcmAudioInputStream extends InputStream implements Closeable {
      * @throws IOException           if there is an IO error.
      * @throws IllegalStateException if the amount of bytes read is not an order of correct.
      */
-    public byte[] readSamplesByteArray(int amount) throws IOException {
+    public byte[] readSamplesAsByteArray(int amount) throws IOException {
 
         byte[] bytez = new byte[amount * format.getBytePerSample()];
         int readCount = dis.read(bytez);
@@ -67,7 +69,8 @@ public class PcmAudioInputStream extends InputStream implements Closeable {
     }
 
     /**
-     * skips samples from the stream. if end of file is reached or if it cannot 
+     * skips samples from the stream. if end of file is reached, it returns the amount that is actually skipped.
+     *
      * @param skipAmount amount of samples to skip
      * @return actual skipped sample count.
      * @throws IOException if there is a problem while skipping.
@@ -102,8 +105,41 @@ public class PcmAudioInputStream extends InputStream implements Closeable {
     }
 
     public short[] readSamplesShortArray(int amount) throws IOException {
-        byte[] bytez = readSamplesByteArray(amount);
+        byte[] bytez = readSamplesAsByteArray(amount);
         return Bytes.toShortArray(bytez, bytez.length, format.isBigEndian());
+    }
+
+    /**
+     * finds the byte location of a given time. if time is negative, exception is thrown.
+     *
+     * @param second second information
+     * @return the byte location in the samples.
+     */
+    public int calculateSampleByteIndex(double second) {
+
+        if (second < 0)
+            throw new IllegalArgumentException("Time information cannot be negative.");
+
+        int loc = (int) (second * format.getSampleRate() * format.getBytePerSample());
+
+        //byte alignment. 
+        if (loc % format.getBytePerSample() != 0) {
+            loc += (format.getBytePerSample() - loc % format.getBytePerSample());
+        }
+        return loc;
+    }
+
+    /**
+     * calcualates the time informationn for a given sample.
+     *
+     * @param sampleIndex sample index.
+     * @return approximate seconds information for the given sample.
+     */
+    public double calculateSampleTime(int sampleIndex) {
+        if (sampleIndex < 0)
+            throw new IllegalArgumentException("sampleIndex information cannot be negative:" + sampleIndex);
+
+        return (double) sampleIndex / format.getSampleRate();
     }
 
 

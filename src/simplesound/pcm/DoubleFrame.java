@@ -1,6 +1,6 @@
 package simplesound.pcm;
 
-public class DoubleFrame {
+class DoubleFrame {
 
     double[] values;
 

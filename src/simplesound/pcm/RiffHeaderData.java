@@ -1,6 +1,7 @@
 package simplesound.pcm;
 
 import static simplesound.pcm.Bytes.toByteArray;
+import static simplesound.pcm.Bytes.toInt;
 
 import java.io.*;
 
@@ -31,20 +32,20 @@ class RiffHeaderData {
             dis.skipBytes(4 + 4 + 4 + 4 + 4 + 2);
 
             dis.readFully(buf2);
-            final int channels = Bytes.toInt(buf2, false);
+            final int channels = toInt(buf2, false);
 
             dis.readFully(buf4);
-            final int sampleRate = Bytes.toInt(buf4, false);
+            final int sampleRate = toInt(buf4, false);
 
             dis.skipBytes(4 + 2);
 
             dis.readFully(buf2);
-            final int sampleSizeInBits = Bytes.toInt(buf2, false);
+            final int sampleSizeInBits = toInt(buf2, false);
 
             dis.skipBytes(4);
 
             dis.readFully(buf4);
-            totalSamplesInByte = Bytes.toInt(buf4, false);
+            totalSamplesInByte = toInt(buf4, false);
 
             format = new WavAudioFormat.Builder().
                     channels(channels).

@@ -3,6 +3,9 @@ package simplesound.pcm;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 
+/**
+ * this is a builder class for easily generating javax.sound.sampled.AudioFormat object.
+ */
 public class JavaAudioFormatBuilder {
 
     private enum Channel {
