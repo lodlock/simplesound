@@ -5,12 +5,12 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class PcmMonoAudioInputStream extends InputStream implements Closeable {
+public class PcmMonoInputStream extends InputStream implements Closeable {
 
     final PcmAudioFormat format;
     final DataInputStream dis;
 
-    public PcmMonoAudioInputStream(PcmAudioFormat format, InputStream is) {
+    public PcmMonoInputStream(PcmAudioFormat format, InputStream is) {
         if (format.getChannels() != 1)
             throw new IllegalArgumentException("Only mono streams are supported.");
         this.format = format;

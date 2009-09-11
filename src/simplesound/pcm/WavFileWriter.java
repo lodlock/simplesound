@@ -11,7 +11,7 @@ import java.io.IOException;
 public class WavFileWriter implements Closeable {
 
     private final WavAudioFormat pcmAudioFormat;
-    private final PcmMonoAudioOutputStream pos;
+    private final PcmMonoOutputStream pos;
     private int totalSampleBytesWritten = 0;
     private final File file;
 
@@ -23,7 +23,7 @@ public class WavFileWriter implements Closeable {
                     + wavAudioFormat.getSampleSizeInBits());
         this.pcmAudioFormat = wavAudioFormat;
         this.file = file;
-        this.pos = new PcmMonoAudioOutputStream(wavAudioFormat, file);
+        this.pos = new PcmMonoOutputStream(wavAudioFormat, file);
         pos.write(new RiffHeaderData(wavAudioFormat, 0).asByteArray());
     }
 

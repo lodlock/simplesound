@@ -4,12 +4,12 @@ import java.util.Iterator;
 
 class FrameReader implements Iterable<DoubleFrame> {
 
-    private final PcmMonoAudioInputStream pcmAudioInputStream;
+    private final PcmMonoInputStream pcmInputStream;
     private final int frameSize;
     private final int shiftAmount;
 
-    public FrameReader(PcmMonoAudioInputStream pais, int frameSize, int shiftAmount) {
-        this.pcmAudioInputStream = pais;
+    public FrameReader(PcmMonoInputStream pais, int frameSize, int shiftAmount) {
+        this.pcmInputStream = pais;
         this.frameSize = frameSize;
         this.shiftAmount = shiftAmount;
     }
