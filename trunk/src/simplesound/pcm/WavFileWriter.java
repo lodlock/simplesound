@@ -41,18 +41,15 @@ public class WavFileWriter implements Closeable {
         }
     }
 
-    public WavFileWriter write(short[] shorts) throws IOException {
-        checkLimit(totalSampleBytesWritten, shorts.length * 2);
-        pos.write(shorts);
-        totalSampleBytesWritten += shorts.length * 2;
-        return this;
-    }
-
     public WavFileWriter write(int[] samples) throws IOException {
         final int bytePerSample = pcmAudioFormat.getBytePerSample();
         checkLimit(totalSampleBytesWritten, samples.length * bytePerSample);
         pos.write(samples);
         totalSampleBytesWritten += samples.length * bytePerSample;
+        return this;
+    }
+
+    WavFileWriter writeNormalized(double[] samples) throws IOException {
         return this;
     }
 

@@ -20,7 +20,7 @@ public class MonoWavFileReader {
             throw new IllegalArgumentException("Wav file is not Mono.");
     }
 
-    public PcmMonoInputStream getStream() throws IOException {
+    public PcmMonoInputStream getNewStream() throws IOException {
         PcmMonoInputStream asis = new PcmMonoInputStream(
                 riffHeaderData.getFormat(),
                 new FileInputStream(file));
@@ -28,17 +28,6 @@ public class MonoWavFileReader {
         if (amount < RiffHeaderData.PCM_RIFF_HEADER_SIZE)
             throw new IllegalArgumentException("cannot skip necessary amount of bytes from underlying stream.");
         return asis;
-    }
-
-    public short[] getSamplesAsShorts(int frameStart, int frameEnd) throws IOException {
-        validateFrameBoundaries(frameStart, frameEnd);
-        PcmMonoInputStream stream = getStream();
-        try {
-            stream.skipSamples(frameStart);
-            return stream.readSamplesShortArray(frameEnd - frameStart);
-        } finally {
-            stream.close();
-        }
     }
 
     private void validateFrameBoundaries(int frameStart, int frameEnd) {
@@ -53,7 +42,7 @@ public class MonoWavFileReader {
     }
 
     public int[] getAllSamples() throws IOException {
-        PcmMonoInputStream stream = getStream();
+        PcmMonoInputStream stream = getNewStream();
         try {
             return stream.readAll();
         } finally {
@@ -63,7 +52,7 @@ public class MonoWavFileReader {
 
     public int[] getSamplesAsInts(int frameStart, int frameEnd) throws IOException {
         validateFrameBoundaries(frameStart, frameEnd);
-        PcmMonoInputStream stream = getStream();
+        PcmMonoInputStream stream = getNewStream();
         try {
             stream.skipSamples(frameStart);
             return stream.readSamplesAsIntArray(frameEnd - frameStart);
