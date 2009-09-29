@@ -1,7 +1,8 @@
 package simplesound.pcm;
 
-import static simplesound.pcm.Bytes.toByteArray;
-import static simplesound.pcm.Bytes.toInt;
+import static org.jcaki.Bytes.toByteArray;
+import static org.jcaki.Bytes.toInt;
+import org.jcaki.IOs;
 
 import java.io.*;
 

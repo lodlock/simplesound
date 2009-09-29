@@ -1,5 +1,8 @@
 package simplesound.pcm;
 
+import static org.jcaki.Bytes.toByteArray;
+import org.jcaki.IOs;
+
 import java.io.*;
 
 public class PcmAudioHelper {
@@ -28,11 +31,11 @@ public class PcmAudioHelper {
     }
 
     public static void convertWavToRaw(File wavSource, File rawTarget) throws IOException {
-        IOs.copy(new MonoWavFileReader(wavSource).getStream(), new FileOutputStream(rawTarget));
+        IOs.copy(new MonoWavFileReader(wavSource).getNewStream(), new FileOutputStream(rawTarget));
     }
 
     public static double[] readAllFromWavNormalized(String fileName) throws IOException {
-        return new MonoWavFileReader(new File(fileName)).getStream().readSamplesNormalized();
+        return new MonoWavFileReader(new File(fileName)).getNewStream().readSamplesNormalized();
     }
 
     /**
@@ -45,9 +48,9 @@ public class PcmAudioHelper {
     static void modifyRiffSizeData(File wavFile, int size) throws IOException {
         RandomAccessFile raf = new RandomAccessFile(wavFile, "rw");
         raf.seek(RiffHeaderData.RIFF_CHUNK_SIZE_INDEX);
-        raf.write(Bytes.toByteArray(size + 36, false));
+        raf.write(toByteArray(size + 36, false));
         raf.seek(RiffHeaderData.RIFF_SUBCHUNK2_SIZE_INDEX);
-        raf.write(Bytes.toByteArray(size, false));
+        raf.write(toByteArray(size, false));
         raf.close();
     }
 

@@ -1,5 +1,8 @@
 package simplesound.pcm;
 
+import org.jcaki.Bytes;
+import org.jcaki.IOs;
+
 import java.io.*;
 
 public class PcmMonoOutputStream extends OutputStream implements Closeable {

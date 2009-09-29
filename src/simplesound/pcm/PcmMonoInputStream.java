@@ -1,5 +1,8 @@
 package simplesound.pcm;
 
+import org.jcaki.Bytes;
+import org.jcaki.IOs;
+
 import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -24,6 +27,8 @@ public class PcmMonoInputStream extends InputStream implements Closeable {
     public int[] readSamplesAsIntArray(int amount) throws IOException {
         byte[] bytez = new byte[amount * format.getBytePerSample()];
         int readAmount = dis.read(bytez);
+        if (readAmount == -1)
+            return new int[0];
         return Bytes.toIntArray(bytez, readAmount, format.getBytePerSample(), format.isBigEndian());
     }
 
@@ -82,10 +87,12 @@ public class PcmMonoInputStream extends InputStream implements Closeable {
 
     public double[] readSamplesNormalized(int amount) throws IOException {
         int[] original = readSamplesAsIntArray(amount);
+        if (original.length == 0)
+            return new double[0];
         double[] normalized = new double[original.length];
         final int max = 0x7fffffff >>> (31 - format.getSampleSizeInBits());
         for (int i = 0; i < normalized.length; i++) {
-            normalized[i] = original[i] / max;
+            normalized[i] = (double) original[i] / max;
         }
         return normalized;
     }
@@ -102,11 +109,6 @@ public class PcmMonoInputStream extends InputStream implements Closeable {
 
     public void close() throws IOException {
         dis.close();
-    }
-
-    public short[] readSamplesShortArray(int amount) throws IOException {
-        byte[] bytez = readSamplesAsByteArray(amount);
-        return Bytes.toShortArray(bytez, bytez.length, format.isBigEndian());
     }
 
     /**
