@@ -29,12 +29,12 @@ public class PcmMonoInputStream extends InputStream implements Closeable {
         int readAmount = dis.read(bytez);
         if (readAmount == -1)
             return new int[0];
-        return Bytes.toIntArray(bytez, readAmount, format.getBytePerSample(), format.isBigEndian());
+        return Bytes.toBoundedIntArray(bytez, readAmount, format.getBytePerSample(), format.isBigEndian());
     }
 
     public int[] readAll() throws IOException {
         byte[] all = IOs.readAsByteArray(dis);
-        return Bytes.toIntArray(all, all.length, format.getBytePerSample(), format.isBigEndian());
+        return Bytes.toBoundedIntArray(all, all.length, format.getBytePerSample(), format.isBigEndian());
     }
 
     private static final int BYTE_BUFFER_SIZE = 4096;
@@ -90,9 +90,9 @@ public class PcmMonoInputStream extends InputStream implements Closeable {
         if (original.length == 0)
             return new double[0];
         double[] normalized = new double[original.length];
-        final int max = 0x7fffffff >>> (31 - format.getSampleSizeInBits());
+        final int maxPositive = 0x7fffffff >>> (32 - format.getSampleSizeInBits());
         for (int i = 0; i < normalized.length; i++) {
-            normalized[i] = (double) original[i] / max;
+            normalized[i] = (double) original[i] / maxPositive;
         }
         return normalized;
     }
@@ -100,9 +100,9 @@ public class PcmMonoInputStream extends InputStream implements Closeable {
     public double[] readSamplesNormalized() throws IOException {
         int[] original = readAll();
         double[] normalized = new double[original.length];
-        final int max = 0x7fffffff >>> (31 - format.getSampleSizeInBits());
+        final int maxPositive = 0x7fffffff >>> (32 - format.getSampleSizeInBits() +1 );
         for (int i = 0; i < normalized.length; i++) {
-            normalized[i] = original[i] / max;
+            normalized[i] = (double) original[i] / maxPositive;
         }
         return normalized;
     }

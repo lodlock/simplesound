@@ -3,7 +3,7 @@ package simplesound.pcm;
 import java.io.IOException;
 import java.util.Iterator;
 
-class NormalizedFrameIterator implements Iterator<DoubleDataFrame> {
+public class NormalizedFrameIterator implements Iterator<DoubleDataFrame> {
 
     private final PcmMonoInputStream pmis;
     private final int frameSize;
@@ -17,6 +17,14 @@ class NormalizedFrameIterator implements Iterator<DoubleDataFrame> {
         this.pmis = pmis;
         this.frameSize = frameSize;
         this.shiftAmount = shiftAmount;
+    }
+
+    public NormalizedFrameIterator(PcmMonoInputStream pmis, int frameSize) {
+        if (frameSize < 1)
+            throw new IllegalArgumentException("Frame size must be larger than zero.");
+        this.pmis = pmis;
+        this.frameSize = frameSize;
+        this.shiftAmount = frameSize;
     }
 
     private DoubleDataFrame currentFrame;
