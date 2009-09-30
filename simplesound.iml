@@ -15,7 +15,9 @@
           <root url="jar://$MODULE_DIR$/lib/jcaki-1.0-Alpha.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="file://$MODULE_DIR$/../jcaki/src" />
+        </SOURCES>
       </library>
     </orderEntry>
   </component>
