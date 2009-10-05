@@ -1,10 +1,15 @@
-package simplesound.pcm;
+package simplesound.dsp;
 
-public class DoubleDataFrame {
+import java.util.Arrays;
+
+/**
+ * a vector containing a double numbers.
+ */
+public class DoubleVector {
 
     final double[] data;
 
-    public DoubleDataFrame(double[] data) {
+    public DoubleVector(double[] data) {
         if (data == null)
             throw new IllegalArgumentException("Data cannot be null!");
         this.data = data;
@@ -17,4 +22,11 @@ public class DoubleDataFrame {
     public double[] getData() {
         return data;
     }
+
+
+    @Override
+    public String toString() {
+        return Arrays.toString(data);
+    }
+
 }

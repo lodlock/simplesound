@@ -1,15 +1,20 @@
-package simplesound.pcm;
+package simplesound.dsp;
+
+import simplesound.dsp.DoubleVector;
+import simplesound.pcm.PcmMonoInputStream;
 
 import java.io.IOException;
 import java.util.Iterator;
 
-public class NormalizedFrameIterator implements Iterator<DoubleDataFrame> {
+public class NormalizedFrameIterator implements Iterator<DoubleVector> {
 
     private final PcmMonoInputStream pmis;
     private final int frameSize;
     private final int shiftAmount;
+    //TODO: not applied yet
+    private final boolean applyPadding;
 
-    public NormalizedFrameIterator(PcmMonoInputStream pmis, int frameSize, int shiftAmount) {
+    public NormalizedFrameIterator(PcmMonoInputStream pmis, int frameSize, int shiftAmount, boolean applyPadding) {
         if (frameSize < 1)
             throw new IllegalArgumentException("Frame size must be larger than zero.");
         if (shiftAmount < 1)
@@ -17,17 +22,18 @@ public class NormalizedFrameIterator implements Iterator<DoubleDataFrame> {
         this.pmis = pmis;
         this.frameSize = frameSize;
         this.shiftAmount = shiftAmount;
+        this.applyPadding = applyPadding;
+    }
+
+    public NormalizedFrameIterator(PcmMonoInputStream pmis, int frameSize, boolean applyPadding) {
+        this(pmis, frameSize, frameSize, applyPadding);
     }
 
     public NormalizedFrameIterator(PcmMonoInputStream pmis, int frameSize) {
-        if (frameSize < 1)
-            throw new IllegalArgumentException("Frame size must be larger than zero.");
-        this.pmis = pmis;
-        this.frameSize = frameSize;
-        this.shiftAmount = frameSize;
+        this(pmis, frameSize, frameSize, false);
     }
 
-    private DoubleDataFrame currentFrame;
+    private DoubleVector currentFrame;
     private int frameCounter;
 
     public boolean hasNext() {
@@ -37,14 +43,14 @@ public class NormalizedFrameIterator implements Iterator<DoubleDataFrame> {
                 data = pmis.readSamplesNormalized(frameSize);
                 if (data.length < frameSize)
                     return false;
-                currentFrame = new DoubleDataFrame(data);
+                currentFrame = new DoubleVector(data);
             } else {
                 data = pmis.readSamplesNormalized(shiftAmount);
                 if (data.length < shiftAmount)
                     return false;
                 double[] frameData = currentFrame.data.clone();
                 System.arraycopy(data, 0, frameData, frameData.length - shiftAmount, shiftAmount);
-                currentFrame = new DoubleDataFrame(frameData);
+                currentFrame = new DoubleVector(frameData);
             }
         } catch (IOException e) {
             return false;
@@ -53,7 +59,7 @@ public class NormalizedFrameIterator implements Iterator<DoubleDataFrame> {
         return true;
     }
 
-    public DoubleDataFrame next() {
+    public DoubleVector next() {
         return currentFrame;
     }
 
@@ -61,5 +67,11 @@ public class NormalizedFrameIterator implements Iterator<DoubleDataFrame> {
         throw new UnsupportedOperationException("Remove is not supported.");
     }
 
+    public int getFrameSize() {
+        return frameSize;
+    }
 
+    public int getShiftAmount() {
+        return shiftAmount;
+    }
 }
