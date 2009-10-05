@@ -95,7 +95,7 @@ public class PcmAudioFormat {
     }
 
     PcmAudioFormat mono16BitSignedLittleEndian(int sampleRate) {
-        return new PcmAudioFormat(sampleRate, 16,1,false,true);
+        return new PcmAudioFormat(sampleRate, 16, 1, false, true);
     }
 
     public int getSampleRate() {
@@ -126,6 +126,10 @@ public class PcmAudioFormat {
 
     public boolean isSigned() {
         return signed;
+    }
+
+    public int sampleCountForMiliseconds(double miliseconds) {
+        return (int) ((double) sampleRate * miliseconds / 1000d);
     }
 
     public String toString() {

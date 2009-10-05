@@ -10,14 +10,20 @@ import java.io.InputStream;
 
 public class PcmMonoInputStream extends InputStream implements Closeable {
 
-    final PcmAudioFormat format;
-    final DataInputStream dis;
+    private final PcmAudioFormat format;
+    private final DataInputStream dis;
+    /**
+     * this is used for normalization.
+     */
+    private final int maxPositiveIntegerForSampleSize;
+
 
     public PcmMonoInputStream(PcmAudioFormat format, InputStream is) {
         if (format.getChannels() != 1)
             throw new IllegalArgumentException("Only mono streams are supported.");
         this.format = format;
         this.dis = new DataInputStream(is);
+        this.maxPositiveIntegerForSampleSize = 0x7fffffff >>> (32 - format.getSampleSizeInBits());
     }
 
     public int read() throws IOException {
@@ -29,12 +35,22 @@ public class PcmMonoInputStream extends InputStream implements Closeable {
         int readAmount = dis.read(bytez);
         if (readAmount == -1)
             return new int[0];
-        return Bytes.toBoundedIntArray(bytez, readAmount, format.getBytePerSample(), format.isBigEndian());
+        return Bytes.toReducedBitIntArray(
+                bytez,
+                readAmount,
+                format.getBytePerSample(),
+                format.getSampleSizeInBits(),
+                format.isBigEndian());
     }
 
     public int[] readAll() throws IOException {
         byte[] all = IOs.readAsByteArray(dis);
-        return Bytes.toBoundedIntArray(all, all.length, format.getBytePerSample(), format.isBigEndian());
+        return Bytes.toReducedBitIntArray(
+                all,
+                all.length,
+                format.getBytePerSample(),
+                format.getSampleSizeInBits(),
+                format.isBigEndian());
     }
 
     private static final int BYTE_BUFFER_SIZE = 4096;
@@ -86,23 +102,19 @@ public class PcmMonoInputStream extends InputStream implements Closeable {
     }
 
     public double[] readSamplesNormalized(int amount) throws IOException {
-        int[] original = readSamplesAsIntArray(amount);
-        if (original.length == 0)
-            return new double[0];
-        double[] normalized = new double[original.length];
-        final int maxPositive = 0x7fffffff >>> (32 - format.getSampleSizeInBits());
-        for (int i = 0; i < normalized.length; i++) {
-            normalized[i] = (double) original[i] / maxPositive;
-        }
-        return normalized;
+        return normalize(readSamplesAsIntArray(amount));
     }
 
     public double[] readSamplesNormalized() throws IOException {
-        int[] original = readAll();
+        return normalize(readAll());
+    }
+
+    private double[] normalize(int[] original) {
+        if (original.length == 0)
+            return new double[0];
         double[] normalized = new double[original.length];
-        final int maxPositive = 0x7fffffff >>> (32 - format.getSampleSizeInBits() +1 );
         for (int i = 0; i < normalized.length; i++) {
-            normalized[i] = (double) original[i] / maxPositive;
+            normalized[i] = (double) original[i] / maxPositiveIntegerForSampleSize;
         }
         return normalized;
     }
@@ -144,5 +156,7 @@ public class PcmMonoInputStream extends InputStream implements Closeable {
         return (double) sampleIndex / format.getSampleRate();
     }
 
-
+    public PcmAudioFormat getFormat() {
+        return format;
+    }
 }
